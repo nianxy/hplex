@@ -3,7 +3,8 @@ package com.nianxy.hplex;
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.CondCompare;
 import com.nianxy.hplex.limit.Limit;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * Created by nianxingyan on 17/8/16.
  */
 public class HPlexTable {
-    private static final Logger logger = Logger.getLogger(HPlexTable.class);
+    private static final Logger logger = LogManager.getLogger(HPlexTable.class);
 
     private Class<?> clazz;
     private TableInfo tableInfo;

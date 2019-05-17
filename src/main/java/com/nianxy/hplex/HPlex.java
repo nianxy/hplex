@@ -1,12 +1,13 @@
 package com.nianxy.hplex;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Created by nianxingyan on 17/8/16.
  */
 public class HPlex {
-    private static final Logger logger = Logger.getLogger(HPlex.class);
+    private static final Logger logger = LogManager.getLogger(HPlex.class);
 
     private static HPlexConfigure configure;
 

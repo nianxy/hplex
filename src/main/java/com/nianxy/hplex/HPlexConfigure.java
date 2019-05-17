@@ -3,7 +3,8 @@ package com.nianxy.hplex;
 import com.nianxy.hplex.annotation.Column;
 import com.nianxy.hplex.annotation.Table;
 import com.nianxy.hplex.assign.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.Map;
  * Created by nianxingyan on 17/8/16.
  */
 public class HPlexConfigure {
-    private static final Logger logger = Logger.getLogger(HPlexConfigure.class);
+    private static final Logger logger = LogManager.getLogger(HPlexConfigure.class);
 
     private Map<String, TableInfo> classColumns = new HashMap<>();
     private SimpleDataSoruce ds;

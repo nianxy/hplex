@@ -1,7 +1,8 @@
 package com.nianxy.hplex;
 
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
  * Created by nianxingyan on 17/8/19.
  */
 public class Insert {
-    private static final Logger logger = Logger.getLogger(Insert.class);
+    private static final Logger logger = LogManager.getLogger(Insert.class);
 
     private HPlexTable table;
     private TableInfo tableInfo;

@@ -9,7 +9,8 @@ import com.nianxy.hplex.order.Order;
 import com.nianxy.hplex.aggregation.Aggregate;
 import com.nianxy.hplex.aggregation.AggregateGroup;
 import com.nianxy.hplex.aggregation.IAggregate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,7 +24,7 @@ import java.util.List;
  * Created by nianxingyan on 17/8/16.
  */
 public class Query {
-    private static final Logger logger = Logger.getLogger(Query.class);
+    private static final Logger logger = LogManager.getLogger(Query.class);
 
     private HPlexTable table;
     private TableInfo tableInfo;

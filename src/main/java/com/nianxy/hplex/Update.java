@@ -7,7 +7,8 @@ import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
 import com.nianxy.hplex.order.Order;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -23,7 +24,7 @@ import java.util.stream.Stream;
  * Created by nianxingyan on 17/8/19.
  */
 public class Update {
-    private static final Logger logger = Logger.getLogger(Update.class);
+    private static final Logger logger = LogManager.getLogger(Update.class);
 
     private HPlexTable table;
     private TableInfo tableInfo;
