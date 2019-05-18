@@ -19,6 +19,7 @@ public class Insert {
     private static final Logger logger = LogManager.getLogger(Insert.class);
 
     private HPlexTable table;
+    private Connection connection;
     private TableInfo tableInfo;
     private List<Object> data;
     private List<ColumnInfo> columns;
@@ -28,8 +29,9 @@ public class Insert {
     private boolean isSetAutoInc;
     private ColumnInfo autoIncField;
 
-    protected Insert(HPlexTable table) {
+    protected Insert(HPlexTable table, Connection conn) {
         this.table = table;
+        connection = conn;
         tableInfo = table.getTableInfo();
         isSetAutoInc = false;
         data = new ArrayList<>();
@@ -113,22 +115,13 @@ public class Insert {
         // 先检查是否有自增字段
         checkAutoIncField();
 
-        Connection conn = HPlex.getConfigure().getDataSource().getConnection();
-        if (conn==null) {
-            throw new Exception("execute get connection failed");
-        }
+        HPConnection conn = new HPConnection(connection);
         try {
-            PreparedStatement pstmt = setupPrepareStatement(conn, Statement.NO_GENERATED_KEYS);
+            PreparedStatement pstmt = setupPrepareStatement(conn.getConnection(), Statement.NO_GENERATED_KEYS);
             int count = pstmt.executeUpdate();
             return count;
         } finally {
-            if (conn!=null) {
-                try {
-                    conn.close();
-                } catch (Exception e){} finally {
-                    conn = null;
-                }
-            }
+            conn.close();
         }
     }
 
@@ -141,12 +134,9 @@ public class Insert {
         // 先检查是否有自增字段
         checkAutoIncField();
 
-        Connection conn = HPlex.getConfigure().getDataSource().getConnection();
-        if (conn==null) {
-            throw new Exception("executeForID get connection failed");
-        }
+        HPConnection conn = new HPConnection(connection);
         try {
-            PreparedStatement pstmt = setupPrepareStatement(conn, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement pstmt = setupPrepareStatement(conn.getConnection(), Statement.RETURN_GENERATED_KEYS);
             int count = pstmt.executeUpdate();
             long id = 0;
             if (count>0) {
@@ -157,13 +147,7 @@ public class Insert {
             }
             return id;
         } finally {
-            if (conn!=null) {
-                try {
-                    conn.close();
-                } catch (Exception e){} finally {
-                    conn = null;
-                }
-            }
+            conn.close();
         }
     }
 

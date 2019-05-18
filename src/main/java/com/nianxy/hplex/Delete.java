@@ -21,14 +21,16 @@ import java.util.List;
 public class Delete {
     private static final Logger logger = LogManager.getLogger(Delete.class);
 
+    private Connection connection;
     private HPlexTable table;
     private TableInfo tableInfo;
     private List<ICond> conds;
     private List<IOrder> orders;
     private ILimit limit;
 
-    protected Delete(HPlexTable table) {
+    protected Delete(HPlexTable table, Connection conn) {
         this.table = table;
+        connection = conn;
         tableInfo = table.getTableInfo();
         conds = new ArrayList<>();
     }
@@ -72,27 +74,16 @@ public class Delete {
      * @throws Exception
      */
     public int execute() throws Exception {
-        Connection conn = HPlex.getConfigure().getDataSource().getConnection();
-        if (conn==null) {
-            throw new Exception("execute get connection failed");
-        }
-
+        HPConnection conn = new HPConnection(connection);
         int n = 0;
         try {
-            PreparedStatement pstmt = setupPrepareStatement(conn);
+            PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
             n = pstmt.executeUpdate();
         } catch (Exception e) {
             throw e;
         } finally {
-            if (conn!=null) {
-                try {
-                    conn.close();
-                } catch (Exception e){} finally {
-                    conn = null;
-                }
-            }
+            conn.close();
         }
-
         return n;
     }
 

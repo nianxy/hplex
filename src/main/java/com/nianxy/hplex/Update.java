@@ -27,6 +27,7 @@ public class Update {
     private static final Logger logger = LogManager.getLogger(Update.class);
 
     private HPlexTable table;
+    private Connection connection;
     private TableInfo tableInfo;
     private List<ColumnInfo> columns;
     private List<ICond> conds;
@@ -37,9 +38,10 @@ public class Update {
     private boolean isSetAutoInc;
     private ColumnInfo autoIncField;
 
-    protected Update(HPlexTable table, Object data) {
+    protected Update(HPlexTable table, Object datam, Connection conn) {
         this.table = table;
         this.data = data;
+        connection = conn;
         if (!table.getClazz().isInstance(data)) {
             throw new RuntimeException("object is not the instance of " + table.getClazz().getName());
         }
@@ -112,24 +114,15 @@ public class Update {
         // 先检查是否有自增字段
         checkAutoIncField();
 
-        Connection conn = HPlex.getConfigure().getDataSource().getConnection();
-        if (conn==null) {
-            throw new Exception("execute get connection failed");
-        }
+        HPConnection conn = new HPConnection(connection);
         try {
-            PreparedStatement pstmt = setupPrepareStatement(conn);
+            PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
             int count = pstmt.executeUpdate();
             return count;
         } catch (Exception e) {
             throw e;
         } finally {
-            if (conn!=null) {
-                try {
-                    conn.close();
-                } catch (Exception e){} finally {
-                    conn = null;
-                }
-            }
+            conn.close();
         }
     }
 

@@ -27,6 +27,7 @@ public class Query {
     private static final Logger logger = LogManager.getLogger(Query.class);
 
     private HPlexTable table;
+    private Connection connection;
     private TableInfo tableInfo;
     private List<ICond> conds;
     private List<ColumnInfo> columns;
@@ -35,8 +36,9 @@ public class Query {
     private List<IOrder> orders;
     private ILimit limit;
 
-    protected Query(HPlexTable table) {
+    protected Query(HPlexTable table, Connection conn) {
         this.table = table;
+        connection = conn;
         tableInfo = table.getTableInfo();
         conds = new ArrayList<>();
     }
@@ -145,14 +147,10 @@ public class Query {
      * @throws Exception
      */
     public long count() throws Exception {
-        Connection conn = HPlex.getConfigure().getDataSource().getConnection();
-        if (conn==null) {
-            throw new Exception("execute get connection failed");
-        }
-
+        HPConnection conn = new HPConnection(connection);
         long count = 0;
         try {
-            PreparedStatement pstmt = setupCountPrepareStatement(conn);
+            PreparedStatement pstmt = setupCountPrepareStatement(conn.getConnection());
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 count = rs.getLong(1);
@@ -160,13 +158,7 @@ public class Query {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (conn!=null) {
-                try {
-                    conn.close();
-                } catch (Exception e){} finally {
-                    conn = null;
-                }
-            }
+            conn.close();
         }
         return count;
     }
@@ -192,17 +184,13 @@ public class Query {
     public List execute() throws Exception {
         List list = new ArrayList<>();
 
-        Connection conn = HPlex.getConfigure().getDataSource().getConnection();
-        if (conn==null) {
-            throw new Exception("execute get connection failed");
-        }
-
+        HPConnection conn = new HPConnection(connection);
         Collection<ColumnInfo> columnList = getColumns();
         if (columnList==null) {
             columnList = tableInfo.getColumnsByName().values();
         }
         try {
-            PreparedStatement pstmt = setupPrepareStatement(conn);
+            PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
             ResultSet rs = pstmt.executeQuery();
             if (aggregateFuncs==null) {
                 while (rs.next()) {
@@ -219,13 +207,7 @@ public class Query {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (conn!=null) {
-                try {
-                    conn.close();
-                } catch (Exception e){} finally {
-                    conn = null;
-                }
-            }
+            conn.close();
         }
 
         return list;

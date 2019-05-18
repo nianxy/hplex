@@ -6,6 +6,7 @@ import com.nianxy.hplex.limit.Limit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -16,16 +17,20 @@ public class HPlexTable {
 
     private Class<?> clazz;
     private TableInfo tableInfo;
-    private Query query;
+    private Connection connection;
 
     public HPlexTable(Class<?> clazz) throws Exception {
+        this(clazz, null);
+    }
+
+    public HPlexTable(Class<?> clazz, Connection connection) throws Exception {
         this.clazz = clazz;
+        this.connection = connection;
         tableInfo = HPlex.getTableInfo(this.clazz);
         if (tableInfo==null) {
             throw new Exception("class " + clazz.getName() + " is not mapped, please " +
                     "call HPlexConfigure.registTable() to regist the class");
         }
-        query = new Query(this);
     }
 
     protected Class<?> getClazz() {
@@ -41,7 +46,7 @@ public class HPlexTable {
      * @return
      */
     public Query query() {
-        return new Query(this);
+        return new Query(this, connection);
     }
 
     /**
@@ -60,14 +65,14 @@ public class HPlexTable {
     }
 
     public Delete delete() {
-        return new Delete(this);
+        return new Delete(this, connection);
     }
 
     public Insert insert() {
-        return new Insert(this);
+        return new Insert(this, connection);
     }
 
     public Update update(Object data) {
-        return new Update(this, data);
+        return new Update(this, data, connection);
     }
 }
