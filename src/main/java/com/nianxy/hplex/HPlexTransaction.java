@@ -11,6 +11,7 @@ public class HPlexTransaction {
 
     private Connection connection;
     private boolean started;
+    private boolean oriAutoCommit;
 
     public HPlexTransaction() {
         started = false;
@@ -22,7 +23,10 @@ public class HPlexTransaction {
             throw new Exception("get connection failed!");
         }
         connection = conn;
-        conn.setAutoCommit(false);
+        oriAutoCommit = conn.getAutoCommit();
+        if (oriAutoCommit) {
+            conn.setAutoCommit(false);
+        }
         started = true;
     }
 
@@ -38,8 +42,10 @@ public class HPlexTransaction {
             throw new Exception("transaction is not started");
         }
         connection.commit();
-        connection.setAutoCommit(true);
         connection.close();
+        if (!oriAutoCommit) {
+            connection.setAutoCommit(oriAutoCommit);
+        }
     }
 
     public void rollback() throws Exception {
@@ -47,7 +53,13 @@ public class HPlexTransaction {
             throw new Exception("transaction is not started");
         }
         connection.rollback();
-        connection.setAutoCommit(true);
         connection.close();
+        if (!oriAutoCommit) {
+            connection.setAutoCommit(oriAutoCommit);
+        }
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 }
