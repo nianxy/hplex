@@ -13,7 +13,7 @@ public class FloatAssigner implements ValueAssigner {
     @Override
     public void assign(Object obj, Field field, ResultSet rs, String label) throws Exception {
         Object v = rs.getObject(label);
-        field.set(obj, v==null?null:(float)v);
+        field.set(obj, v==null?null:rs.getFloat(label));
     }
 
     @Override

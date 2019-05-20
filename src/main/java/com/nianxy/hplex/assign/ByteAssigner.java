@@ -13,7 +13,7 @@ public class ByteAssigner implements ValueAssigner {
     @Override
     public void assign(Object obj, Field field, ResultSet rs, String label) throws Exception {
         Object v = rs.getObject(label);
-        field.set(obj, v==null?null:(byte)v);
+        field.set(obj, v==null?null:rs.getByte(label));
     }
 
     @Override
