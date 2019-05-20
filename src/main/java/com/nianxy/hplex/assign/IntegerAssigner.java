@@ -12,7 +12,8 @@ import java.sql.Types;
 public class IntegerAssigner implements ValueAssigner {
     @Override
     public void assign(Object obj, Field field, ResultSet rs, String label) throws Exception {
-        field.set(obj, rs.getInt(label));
+        Object v = rs.getObject(label);
+        field.set(obj, v==null?null:(int)v);
     }
 
     @Override
