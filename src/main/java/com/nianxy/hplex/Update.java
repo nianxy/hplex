@@ -38,7 +38,7 @@ public class Update {
     private boolean isSetAutoInc;
     private ColumnInfo autoIncField;
 
-    protected Update(HPlexTable table, Object datam, Connection conn) {
+    protected Update(HPlexTable table, Object data, Connection conn) {
         this.table = table;
         this.data = data;
         connection = conn;

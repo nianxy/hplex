@@ -11,10 +11,12 @@ public class HPlexTransaction {
 
     private Connection connection;
     private boolean started;
+    private boolean finished;
     private boolean oriAutoCommit;
 
     public HPlexTransaction() {
         started = false;
+        finished = false;
     }
 
     public void start() throws Exception {
@@ -46,6 +48,7 @@ public class HPlexTransaction {
         if (!oriAutoCommit) {
             connection.setAutoCommit(oriAutoCommit);
         }
+        finished = true;
     }
 
     public void rollback() throws Exception {
@@ -57,9 +60,14 @@ public class HPlexTransaction {
         if (!oriAutoCommit) {
             connection.setAutoCommit(oriAutoCommit);
         }
+        finished = true;
     }
 
     public boolean isStarted() {
         return started;
+    }
+
+    public boolean isFinished() {
+        return finished;
     }
 }
