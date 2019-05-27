@@ -3,6 +3,7 @@ package com.nianxy.hplex;
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.ICond;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
@@ -10,6 +11,7 @@ import com.nianxy.hplex.order.Order;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -75,11 +77,15 @@ public class Update {
      * @param field 数据表对象的成员名称，注意不是列名
      * @return
      */
-    public Update addField(String field) {
+    public Update addField(String field) throws FieldNotFoundException {
         if (columns==null) {
             columns = new ArrayList<>();
         }
-        columns.add(tableInfo.getColumnsByMember().get(field));
+        ColumnInfo columnInfo = tableInfo.getColumnsByMember().get(field);
+        if (columnInfo==null) {
+            throw new FieldNotFoundException(field);
+        }
+        columns.add(columnInfo);
         return this;
     }
 
@@ -88,12 +94,16 @@ public class Update {
      * @param fields
      * @return
      */
-    public Update addFields(String[] fields) {
+    public Update addFields(String[] fields) throws FieldNotFoundException {
         if (columns==null) {
             columns = new ArrayList<>();
         }
         for (String f : fields) {
-            columns.add(tableInfo.getColumnsByMember().get(f));
+            ColumnInfo columnInfo = tableInfo.getColumnsByMember().get(f);
+            if (columnInfo==null) {
+                throw new FieldNotFoundException(f);
+            }
+            columns.add(columnInfo);
         }
         return this;
     }
