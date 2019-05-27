@@ -84,6 +84,21 @@ public class Update {
     }
 
     /**
+     * 一次添加多个字段
+     * @param fields
+     * @return
+     */
+    public Update addFields(String[] fields) {
+        if (columns==null) {
+            columns = new ArrayList<>();
+        }
+        for (String f : fields) {
+            columns.add(tableInfo.getColumnsByMember().get(f));
+        }
+        return this;
+    }
+
+    /**
      * 设置更新顺序
      * @param order
      * @return
