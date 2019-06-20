@@ -7,6 +7,7 @@ import com.nianxy.hplex.exception.AssignToStatementException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,6 +24,11 @@ public class CondIn implements ICond {
 
     public CondIn addValue(Object value) {
         valuelist.add(value);
+        return this;
+    }
+
+    public CondIn addValues(Collection values) {
+        valuelist.addAll(values);
         return this;
     }
 
