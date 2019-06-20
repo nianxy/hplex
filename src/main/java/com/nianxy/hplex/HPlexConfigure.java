@@ -25,7 +25,7 @@ public class HPlexConfigure {
     private IJSONConvert jsonConvert;
 
     private static ValueAssigner getAssigner(Field field) {
-        Class fieldClass = field.getDeclaringClass();
+        Class fieldClass = field.getType();
         if (int.class.isAssignableFrom(fieldClass) || Integer.class.isAssignableFrom(fieldClass)) {
             return new IntegerAssigner();
         } else if (long.class.isAssignableFrom(fieldClass) || Long.class.isAssignableFrom(fieldClass)) {
