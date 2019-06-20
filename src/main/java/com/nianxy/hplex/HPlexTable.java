@@ -3,6 +3,8 @@ package com.nianxy.hplex;
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.CondCompare;
+import com.nianxy.hplex.exception.ExecutionFailedException;
+import com.nianxy.hplex.exception.TableNotFoundException;
 import com.nianxy.hplex.limit.Limit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,17 +24,16 @@ public class HPlexTable {
     private TableInfo tableInfo;
     private Connection connection;
 
-    public HPlexTable(Class<?> clazz) throws Exception {
+    public HPlexTable(Class<?> clazz) throws TableNotFoundException {
         this(clazz, null);
     }
 
-    public HPlexTable(Class<?> clazz, Connection connection) throws Exception {
+    public HPlexTable(Class<?> clazz, Connection connection) throws TableNotFoundException {
         this.clazz = clazz;
         this.connection = connection;
         tableInfo = HPlex.getTableInfo(this.clazz);
         if (tableInfo==null) {
-            throw new Exception("class " + clazz.getName() + " is not mapped, please " +
-                    "call HPlexConfigure.registTable() to regist the class");
+            throw new TableNotFoundException(clazz.getName());
         }
     }
 
@@ -81,7 +82,7 @@ public class HPlexTable {
      * @param value
      * @return
      */
-    public Object fetchOne(String field, Object value) throws Exception {
+    public Object fetchOne(String field, Object value) throws ExecutionFailedException {
         List list = query().addCond(Cond.compare(CondCompare.Compare.EQ, field, value))
                 .setLimit(Limit.limit().setMaxSize(1)).execute();
         if (list.size()>0) {
