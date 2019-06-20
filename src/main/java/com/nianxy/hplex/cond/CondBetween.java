@@ -2,6 +2,7 @@ package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
 import com.nianxy.hplex.assign.ValueAssigner;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,7 +27,7 @@ public class CondBetween implements ICond {
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
         ValueAssigner va = fi.getAssignerByField(field);
         va.assign(pstmt, paramIndex++, min);
         va.assign(pstmt, paramIndex++, max);

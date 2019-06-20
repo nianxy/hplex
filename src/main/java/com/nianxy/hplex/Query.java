@@ -2,6 +2,10 @@ package com.nianxy.hplex;
 
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.ICond;
+import com.nianxy.hplex.exception.AssignToFieldException;
+import com.nianxy.hplex.exception.CreateTableInstanceFailedException;
+import com.nianxy.hplex.exception.ExecutionFailedException;
+import com.nianxy.hplex.exception.NoConnectionException;
 import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
@@ -146,19 +150,24 @@ public class Query {
      * @return
      * @throws Exception
      */
-    public long count() throws Exception {
-        HPConnection conn = new HPConnection(connection);
+    public long count() throws ExecutionFailedException {
         long count = 0;
+        HPConnection conn = null;
         try {
+            conn = new HPConnection(connection);
             PreparedStatement pstmt = setupCountPrepareStatement(conn.getConnection());
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 count = rs.getLong(1);
             }
-        } catch (Exception e) {
+        } catch (ExecutionFailedException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ExecutionFailedException(e);
         } finally {
-            conn.close();
+            if (conn!=null) {
+                conn.close();
+            }
         }
         return count;
     }
@@ -168,7 +177,7 @@ public class Query {
      * @return
      * @throws Exception
      */
-    public Object fetchOne() throws Exception {
+    public Object fetchOne() throws ExecutionFailedException {
         List result = execute();
         if (result!=null && result.size()>0) {
             return result.get(0);
@@ -181,15 +190,17 @@ public class Query {
      * @return
      * @throws Exception
      */
-    public List execute() throws Exception {
+    public List execute() throws ExecutionFailedException {
         List list = new ArrayList<>();
 
-        HPConnection conn = new HPConnection(connection);
         Collection<ColumnInfo> columnList = getColumns();
         if (columnList==null) {
             columnList = tableInfo.getColumnsByName().values();
         }
+
+        HPConnection conn = null;
         try {
+            conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
             ResultSet rs = pstmt.executeQuery();
             if (aggregateFuncs==null) {
@@ -204,39 +215,51 @@ public class Query {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (ExecutionFailedException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ExecutionFailedException(e);
         } finally {
-            conn.close();
+            if (conn!=null) {
+                conn.close();
+            }
         }
 
         return list;
     }
 
-    private Object assignRS2Object(Collection<ColumnInfo> columnList, ResultSet rs) throws Exception {
-        Object obj = table.getClazz().newInstance();
+    private Object assignRS2Object(Collection<ColumnInfo> columnList, ResultSet rs) throws AssignToFieldException, CreateTableInstanceFailedException {
+        Object obj = null;
+        try {
+            obj = table.getClazz().newInstance();
+        } catch (Exception e) {
+            throw new CreateTableInstanceFailedException(table.getTableInfo().getTableName(), e);
+        }
         for (ColumnInfo column : columnList) {
             column.assign(obj, rs);
         }
         return obj;
     }
 
-    private PreparedStatement setupCountPrepareStatement(Connection conn) throws SQLException {
+    private PreparedStatement setupCountPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
         sql.append("select count(*) from ").append(tableInfo.getTableName())
                 .append(Cond.getWhereClause(conds, tableInfo));
 
         logger.trace(sql);
-        PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-
-        // 设置参数
-        Cond.setWherePrepareStatement(conds, pstmt, 1, tableInfo);
-
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql.toString());
+            // 设置参数
+            Cond.setWherePrepareStatement(conds, pstmt, 1, tableInfo);
+        } catch (Exception e) {
+            throw new ExecutionFailedException(e);
+        }
         return pstmt;
     }
 
-    private PreparedStatement setupPrepareStatement(Connection conn) throws SQLException {
+    private PreparedStatement setupPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
 
@@ -255,12 +278,15 @@ public class Query {
         sql.append(Limit.getLimitClause(limit));
 
         logger.trace(sql);
-        PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-
-        // 设置参数
-        int paramIndex = 1;
-        Cond.setWherePrepareStatement(conds, pstmt, paramIndex, tableInfo);
-
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql.toString());
+            // 设置参数
+            int paramIndex = 1;
+            Cond.setWherePrepareStatement(conds, pstmt, paramIndex, tableInfo);
+        } catch (Exception e) {
+            throw new ExecutionFailedException(e);
+        }
         return pstmt;
     }
 }

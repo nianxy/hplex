@@ -1,6 +1,7 @@
 package com.nianxy.hplex;
 
 import com.nianxy.hplex.assign.ValueAssigner;
+import com.nianxy.hplex.exception.AssignToFieldException;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
@@ -15,7 +16,7 @@ class ColumnInfo {
     private Field field;
     private ValueAssigner assigner;
 
-    public void assign(Object obj, ResultSet rs) throws Exception {
+    public void assign(Object obj, ResultSet rs) throws AssignToFieldException {
         assigner.assign(obj, field, rs, columnName);
     }
 

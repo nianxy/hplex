@@ -1,6 +1,7 @@
 package com.nianxy.hplex;
 
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
+import com.nianxy.hplex.exception.NoConnectionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,12 +14,13 @@ class HPConnection {
     private Connection connection;
     private boolean realClose;
 
-    public HPConnection(Connection connection) throws Exception {
+    public HPConnection(Connection connection) throws NoConnectionException {
         realClose = connection==null;
         if (realClose) {
             connection = HPlex.getConfigure().getDataSource().getConnection();
             if (connection==null) {
-                throw new Exception("get connection failed!");
+                logger.error("no db connection available!");
+                throw new NoConnectionException();
             }
         }
         this.connection = connection;

@@ -1,6 +1,7 @@
 package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -48,6 +49,16 @@ public class Cond {
     }
 
     /**
+     * 为一个字段设置like操作条件
+     * @param field 对象的字段名称，注意不是数据库字段名称
+     * @param like 查询串
+     * @return
+     */
+    public static CondLike like(String field, String like) {
+        return new CondLike(field, like);
+    }
+
+    /**
      * 为一个字段设置in操作条件
      * @param field 对象的字段名称，注意不是数据库字段名称
      * @return
@@ -78,7 +89,7 @@ public class Cond {
     }
 
     public static int setWherePrepareStatement(Collection<ICond> conds, PreparedStatement pstmt,
-                                               int paramIndex, FieldInfo fi) throws SQLException {
+                                               int paramIndex, FieldInfo fi) throws AssignToStatementException {
         for (ICond cond:conds) {
             paramIndex = cond.setPrepareStatement(fi, pstmt, paramIndex);
         }

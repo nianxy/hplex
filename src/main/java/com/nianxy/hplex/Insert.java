@@ -1,6 +1,10 @@
 package com.nianxy.hplex;
 
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
+import com.nianxy.hplex.exception.AssignToStatementException;
+import com.nianxy.hplex.exception.ExecutionFailedException;
+import com.nianxy.hplex.exception.FieldNotFoundException;
+import com.nianxy.hplex.exception.NoConnectionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,6 +79,25 @@ public class Insert {
     }
 
     /**
+     * 一次添加多个字段
+     * @param fields
+     * @return
+     */
+    public Insert addFields(String[] fields) throws FieldNotFoundException {
+        if (columns==null) {
+            columns = new ArrayList<>();
+        }
+        for (String f : fields) {
+            ColumnInfo columnInfo = tableInfo.getColumnsByMember().get(f);
+            if (columnInfo==null) {
+                throw new FieldNotFoundException(f);
+            }
+            columns.add(columnInfo);
+        }
+        return this;
+    }
+
+    /**
      * 如果需要on duplicat key update子句，可以通过此函数设置要更新的字段
      * @param field 数据表对象的成员名称
      * @return
@@ -111,17 +134,24 @@ public class Insert {
      * 执行插入操作，返回影响的数据条数
      * @return
      */
-    public int execute() throws Exception {
+    public int execute() throws ExecutionFailedException {
         // 先检查是否有自增字段
         checkAutoIncField();
 
-        HPConnection conn = new HPConnection(connection);
+        HPConnection conn = null;
         try {
+            conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection(), Statement.NO_GENERATED_KEYS);
             int count = pstmt.executeUpdate();
             return count;
+        } catch (ExecutionFailedException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new ExecutionFailedException(e);
         } finally {
-            conn.close();
+            if (conn!=null) {
+                conn.close();
+            }
         }
     }
 
@@ -130,12 +160,13 @@ public class Insert {
      * @return
      * @throws Exception
      */
-    public long executeForID() throws Exception {
+    public long executeForID() throws ExecutionFailedException {
         // 先检查是否有自增字段
         checkAutoIncField();
 
-        HPConnection conn = new HPConnection(connection);
+        HPConnection conn = null;
         try {
+            conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection(), Statement.RETURN_GENERATED_KEYS);
             int count = pstmt.executeUpdate();
             long id = 0;
@@ -146,8 +177,14 @@ public class Insert {
                 }
             }
             return id;
+        } catch (ExecutionFailedException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new ExecutionFailedException(e);
         } finally {
-            conn.close();
+            if (conn!=null) {
+                conn.close();
+            }
         }
     }
 
@@ -233,7 +270,7 @@ public class Insert {
         return sb.toString();
     }
 
-    private void setPrepareStatementValues(PreparedStatement pstmt) throws SQLException {
+    private void setPrepareStatementValues(PreparedStatement pstmt) throws AssignToStatementException {
         int idx = 0;
         Collection<ColumnInfo> cols = (columns!=null?columns:
                 tableInfo.getColumnsByName().values());
@@ -249,15 +286,13 @@ public class Insert {
                 try {
                     ci.getAssigner().assign(pstmt, ++idx, field.get(obj));
                 } catch (IllegalAccessException e) {
-                    logger.error("get value for field " + field.getName() + " exception:" +
-                            ExceptionUtils.getTraceInfo(e));
-                    throw new RuntimeException("get value for field " + field.getName() + " failed!");
+                    throw new AssignToStatementException(e);
                 }
             }
         }
     }
 
-    private PreparedStatement setupPrepareStatement(Connection conn, int autoinc) throws SQLException {
+    private PreparedStatement setupPrepareStatement(Connection conn, int autoinc) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
         sql.append("insert into ").append(tableInfo.getTableName())
@@ -266,11 +301,15 @@ public class Insert {
                 .append(getUpdateStr());
 
         logger.trace(sql);
-        PreparedStatement pstmt = conn.prepareStatement(sql.toString(), autoinc);
 
         // 设置参数
-        setPrepareStatementValues(pstmt);
-
+        PreparedStatement pstmt;
+        try {
+            pstmt = conn.prepareStatement(sql.toString(), autoinc);
+            setPrepareStatementValues(pstmt);
+        } catch (Throwable e) {
+            throw new ExecutionFailedException(e);
+        }
         return pstmt;
     }
 }

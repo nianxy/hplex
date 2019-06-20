@@ -1,6 +1,7 @@
 package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -23,5 +24,5 @@ public interface ICond {
      * @param paramIndex 即将拼接的参数下标
      * @return 下一个要拼接的参数下标
      */
-    int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException;
+    int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException;
 }

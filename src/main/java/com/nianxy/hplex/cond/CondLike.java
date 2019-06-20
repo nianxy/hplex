@@ -2,6 +2,7 @@ package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
 import com.nianxy.hplex.assign.ValueAssigner;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -9,27 +10,24 @@ import java.sql.SQLException;
 /**
  * Created by nianxingyan on 17/8/17.
  */
-public class CondBetween implements ICond {
+public class CondLike implements ICond {
     private String field;
-    private Object min;
-    private Object max;
+    private String like;
 
-    protected CondBetween(String field, Object min, Object max) {
+    protected CondLike(String field, String like) {
         this.field = field;
-        this.min = min;
-        this.max = max;
+        this.like = like;
     }
 
     @Override
     public String getWhereClouse(FieldInfo fi) {
-        return fi.getColumnByField(field) + " between ? and ?";
+        return fi.getColumnByField(field) + " like ? ";
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
         ValueAssigner va = fi.getAssignerByField(field);
-        va.assign(pstmt, paramIndex++, min);
-        va.assign(pstmt, paramIndex++, max);
+        va.assign(pstmt, paramIndex++, like);
         return paramIndex;
     }
 }

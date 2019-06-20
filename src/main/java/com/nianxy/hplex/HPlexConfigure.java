@@ -3,10 +3,14 @@ package com.nianxy.hplex;
 import com.nianxy.hplex.annotation.Column;
 import com.nianxy.hplex.annotation.Table;
 import com.nianxy.hplex.assign.*;
+import com.nianxy.hplex.exception.InvalidAutoincFieldTypeException;
+import com.nianxy.hplex.exception.NoJSONConvertException;
+import com.nianxy.hplex.exception.UnsupportedFieldTypeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,37 +22,49 @@ public class HPlexConfigure {
 
     private Map<String, TableInfo> classColumns = new HashMap<>();
     private SimpleDataSoruce ds;
+    private IJSONConvert jsonConvert;
 
-    private ValueAssigner getAssigner(String type) {
-        if (type.equals("int")) {
+    private static ValueAssigner getAssigner(Field field) {
+        Class fieldClass = field.getDeclaringClass();
+        if (int.class.isAssignableFrom(fieldClass) || Integer.class.isAssignableFrom(fieldClass)) {
             return new IntegerAssigner();
-        } else if (type.equals("long")) {
+        } else if (long.class.isAssignableFrom(fieldClass) || Long.class.isAssignableFrom(fieldClass)) {
             return new LongAssigner();
-        } else if (type.equals("double")) {
+        } else if (double.class.isAssignableFrom(fieldClass) || Double.class.isAssignableFrom(fieldClass)) {
             return new DoubleAssigner();
-        } else if (type.equals("float")) {
+        } else if (float.class.isAssignableFrom(fieldClass) || Float.class.isAssignableFrom(fieldClass)) {
             return new FloatAssigner();
-        } else if (type.equals("byte")) {
+        } else if (byte.class.isAssignableFrom(fieldClass) || Byte.class.isAssignableFrom(fieldClass)) {
             return new ByteAssigner();
-        } else if (type.equals("java.lang.Integer")) {
-            return new IntegerAssigner();
-        } else if (type.equals("java.lang.Long")) {
-            return new LongAssigner();
-        } else if (type.equals("java.lang.Double")) {
-            return new DoubleAssigner();
-        } else if (type.equals("java.lang.Float")) {
-            return new FloatAssigner();
-        } else if (type.equals("java.lang.String")) {
+        } else if (boolean.class.isAssignableFrom(fieldClass) || Boolean.class.isAssignableFrom(fieldClass)) {
+            return new BooleanAssigner();
+        } else if (String.class.isAssignableFrom(fieldClass)) {
             return new StringAssigner();
-        } else if (type.equals("java.lang.Byte")) {
-            return new ByteAssigner();
-        } else if (type.equals("java.util.Date")) {
+        } else if (Date.class.isAssignableFrom(fieldClass)) {
             return new DateAssigner();
+        } else if (IJSONColumn.class.isAssignableFrom(fieldClass)) {
+            try {
+                JSONAssigner assigner =  new JSONAssigner();
+                assigner.setObjectType(fieldClass);
+                return assigner;
+            } catch (NoJSONConvertException e) {
+                logger.error("no json convert set for IJSONColumn column!");
+                return null;
+            }
         }
         return null;
     }
 
-    public HPlexConfigure registTable(Class<?> c) throws Exception {
+    public HPlexConfigure setJSONConvert(IJSONConvert convert) {
+        this.jsonConvert = convert;
+        return this;
+    }
+
+    public IJSONConvert getJsonConvert() {
+        return jsonConvert;
+    }
+
+    public HPlexConfigure registTable(Class<?> c) throws UnsupportedFieldTypeException, InvalidAutoincFieldTypeException {
         if (!c.isAnnotationPresent(Table.class)) {
             new Exception("class " + c.getName() + " is not annotated with Table");
         }
@@ -70,14 +86,15 @@ public class HPlexConfigure {
                     if (!type.equals("int") && !type.equals("long") &&
                             !type.equals("java.lang.Integer") &&
                             !type.equals("java.lang.Long")) {
-                        throw new Exception("auto-increment columnt must be an integer");
+                        throw new InvalidAutoincFieldTypeException(tableInfo.getTableName(),
+                                columnInfo.getColumnName());
                     }
                 }
                 columnInfo.setField(f);
-                columnInfo.setAssigner(getAssigner(f.getType().getName()));
+                columnInfo.setAssigner(getAssigner(f));
                 if (columnInfo.getAssigner()==null) {
-                    throw new Exception("unsupported fileld type:" + tableInfo.getTableClass().getName() +
-                            ":" + f.getName() + ":" + f.getType().getName());
+                    throw new UnsupportedFieldTypeException(tableInfo.getTableName(),
+                            columnInfo.getColumnName(), f.getType().getName());
                 }
                 if (columnInfo.getColumnName().isEmpty()) {
                     columnInfo.setColumnName(f.getName());

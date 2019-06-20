@@ -1,6 +1,7 @@
 package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -36,9 +37,13 @@ public class CondCustom implements ICond {
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException {
-        for (Object v:valuelist) {
-            pstmt.setString(paramIndex++, v.toString());
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
+        try {
+            for (Object v : valuelist) {
+                pstmt.setString(paramIndex++, v.toString());
+            }
+        } catch (SQLException e) {
+            throw new AssignToStatementException(e);
         }
         return paramIndex;
     }

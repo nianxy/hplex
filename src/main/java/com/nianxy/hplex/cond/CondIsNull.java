@@ -21,7 +21,7 @@ public class CondIsNull implements ICond {
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) {
         return paramIndex;
     }
 }

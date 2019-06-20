@@ -3,6 +3,8 @@ package com.nianxy.hplex;
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.ICond;
+import com.nianxy.hplex.exception.AssignToStatementException;
+import com.nianxy.hplex.exception.ExecutionFailedException;
 import com.nianxy.hplex.exception.FieldNotFoundException;
 import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
@@ -135,19 +137,22 @@ public class Update {
      * 执行插入操作，返回影响的数据条数
      * @return
      */
-    public int execute() throws Exception {
+    public int execute() throws ExecutionFailedException {
         // 先检查是否有自增字段
         checkAutoIncField();
 
-        HPConnection conn = new HPConnection(connection);
+        HPConnection conn = null;
         try {
+            conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
             int count = pstmt.executeUpdate();
             return count;
-        } catch (Exception e) {
-            throw e;
+        } catch (Throwable e) {
+            throw new ExecutionFailedException(e);
         } finally {
-            conn.close();
+            if (conn!=null) {
+                conn.close();
+            }
         }
     }
 
@@ -173,8 +178,9 @@ public class Update {
         Stream<ColumnInfo> cols = (columns!=null?columns.stream():
                 tableInfo.getColumnsByName().values().stream());
         cols.forEach(c->{
-            if (!c.isAutoIncrement()||this.isSetAutoInc)
+            if (!c.isAutoIncrement()||this.isSetAutoInc) {
                 sb.append(c.getColumnName()).append("=?,");
+            }
         });
         if (sb.length()>0) {
             sb.deleteCharAt(sb.length() - 1);
@@ -182,28 +188,27 @@ public class Update {
         return sb.toString();
     }
 
-    private int setPrepareStatementColumnValues(PreparedStatement pstmt, int paramIndex) throws SQLException {
+    private int setPrepareStatementColumnValues(PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
         int idx = paramIndex;
         Collection<ColumnInfo> cols = (columns!=null?columns:
                 tableInfo.getColumnsByName().values());
         Iterator<ColumnInfo> iter = cols.iterator();
         while (iter.hasNext()) {
             ColumnInfo ci = iter.next();
-            if (ci.isAutoIncrement() && !this.isSetAutoInc)
+            if (ci.isAutoIncrement() && !this.isSetAutoInc) {
                 continue;
+            }
             Field field = ci.getField();
             try {
                 ci.getAssigner().assign(pstmt, idx++, field.get(data));
             } catch (IllegalAccessException e) {
-                logger.error("get value for field " + field.getName() + " exception:" +
-                        ExceptionUtils.getTraceInfo(e));
-                throw new RuntimeException("get value for field " + field.getName() + " failed!");
+                throw new AssignToStatementException(e);
             }
         }
         return idx;
     }
 
-    private PreparedStatement setupPrepareStatement(Connection conn) throws SQLException {
+    private PreparedStatement setupPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
         sql.append("update ").append(tableInfo.getTableName())
@@ -213,13 +218,16 @@ public class Update {
                 .append(Limit.getLimitClause(limit));
 
         logger.trace(sql);
-        PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-
-        // 设置参数
-        int paramIndex = 1;
-        paramIndex = setPrepareStatementColumnValues(pstmt, paramIndex);
-        paramIndex = Cond.setWherePrepareStatement(conds, pstmt, paramIndex, tableInfo);
-
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql.toString());
+            // 设置参数
+            int paramIndex = 1;
+            paramIndex = setPrepareStatementColumnValues(pstmt, paramIndex);
+            paramIndex = Cond.setWherePrepareStatement(conds, pstmt, paramIndex, tableInfo);
+        } catch (Throwable e) {
+            throw new ExecutionFailedException(e);
+        }
         return pstmt;
     }
 }

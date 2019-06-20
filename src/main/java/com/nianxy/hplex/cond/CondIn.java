@@ -2,6 +2,7 @@ package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
 import com.nianxy.hplex.assign.ValueAssigner;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,8 +28,9 @@ public class CondIn implements ICond {
 
     @Override
     public String getWhereClouse(FieldInfo fi) {
-        if (valuelist.size()==0)
+        if (valuelist.size()==0) {
             throw new RuntimeException("no value defined in CondIn object");
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(fi.getColumnByField(field)).append(" in (");
         for (int i = 0; i < valuelist.size(); ++i) {
@@ -39,7 +41,7 @@ public class CondIn implements ICond {
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
         ValueAssigner va = fi.getAssignerByField(field);
         for (Object v:valuelist) {
             va.assign(pstmt, paramIndex++, v);

@@ -1,6 +1,7 @@
 package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.AssignToStatementException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -41,7 +42,7 @@ public class CondCompare implements ICond {
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws SQLException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
         fi.getAssignerByField(field).assign(pstmt, paramIndex++, value);
         return paramIndex;
     }

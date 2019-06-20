@@ -1,5 +1,8 @@
 package com.nianxy.hplex.assign;
 
+import com.nianxy.hplex.exception.AssignToFieldException;
+import com.nianxy.hplex.exception.AssignToStatementException;
+
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +20,7 @@ public interface ValueAssigner {
      * @param label 数据库字段名称
      * @throws Exception
      */
-    void assign(Object obj, Field field, ResultSet rs, String label) throws Exception;
+    void assign(Object obj, Field field, ResultSet rs, String label) throws AssignToFieldException;
 
     /**
      * 将对象字段设置到Statement中
@@ -26,5 +29,5 @@ public interface ValueAssigner {
      * @param value
      * @throws Exception
      */
-    void assign(PreparedStatement pstmt, int idx, Object value) throws SQLException;
+    void assign(PreparedStatement pstmt, int idx, Object value) throws AssignToStatementException;
 }

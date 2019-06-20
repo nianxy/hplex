@@ -2,6 +2,9 @@ package com.nianxy.hplex;
 
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.ICond;
+import com.nianxy.hplex.exception.AssignToStatementException;
+import com.nianxy.hplex.exception.ExecutionFailedException;
+import com.nianxy.hplex.exception.NoConnectionException;
 import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
@@ -73,21 +76,26 @@ public class Delete {
      * @return
      * @throws Exception
      */
-    public int execute() throws Exception {
-        HPConnection conn = new HPConnection(connection);
+    public int execute() throws ExecutionFailedException {
         int n = 0;
+        HPConnection conn = null;
         try {
+            conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
             n = pstmt.executeUpdate();
-        } catch (Exception e) {
+        } catch (ExecutionFailedException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ExecutionFailedException(e);
         } finally {
-            conn.close();
+            if (conn!=null) {
+                conn.close();
+            }
         }
         return n;
     }
 
-    private PreparedStatement setupPrepareStatement(Connection conn) throws SQLException {
+    private PreparedStatement setupPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ").append(tableInfo.getTableName())
@@ -96,11 +104,15 @@ public class Delete {
                 .append(Limit.getLimitClause(limit));
 
         logger.trace(sql);
-        PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-
-        // 设置参数
-        int paramIndex = 1;
-        Cond.setWherePrepareStatement(conds, pstmt, paramIndex, tableInfo);
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql.toString());
+            // 设置参数
+            int paramIndex = 1;
+            Cond.setWherePrepareStatement(conds, pstmt, paramIndex, tableInfo);
+        } catch (Exception e) {
+            throw new ExecutionFailedException(e);
+        }
 
         return pstmt;
     }

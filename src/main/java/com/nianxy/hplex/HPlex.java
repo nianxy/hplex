@@ -15,7 +15,7 @@ public class HPlex {
         HPlex.configure = configure;
     }
 
-    protected static HPlexConfigure getConfigure() {
+    public static final HPlexConfigure getConfigure() {
         return configure;
     }
 
