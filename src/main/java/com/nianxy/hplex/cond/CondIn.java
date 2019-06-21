@@ -3,6 +3,7 @@ package com.nianxy.hplex.cond;
 import com.nianxy.hplex.FieldInfo;
 import com.nianxy.hplex.assign.ValueAssigner;
 import com.nianxy.hplex.exception.AssignToStatementException;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ public class CondIn implements ICond {
     }
 
     @Override
-    public String getWhereClouse(FieldInfo fi) {
+    public String getWhereClouse(FieldInfo fi) throws FieldNotFoundException {
         if (valuelist.size()==0) {
             throw new RuntimeException("no value defined in CondIn object");
         }
@@ -47,7 +48,7 @@ public class CondIn implements ICond {
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException, FieldNotFoundException {
         ValueAssigner va = fi.getAssignerByField(field);
         for (Object v:valuelist) {
             va.assign(pstmt, paramIndex++, v);

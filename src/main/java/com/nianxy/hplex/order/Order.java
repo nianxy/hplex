@@ -1,6 +1,7 @@
 package com.nianxy.hplex.order;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.util.Collection;
 
@@ -16,13 +17,13 @@ public class Order {
         return new OrderDESC(field);
     }
 
-    public static String getOrderClause(Collection<IOrder> orders, FieldInfo f2c) {
+    public static String getOrderClause(Collection<IOrder> orders, FieldInfo f2c) throws FieldNotFoundException {
         if (orders!=null && orders.size()>0) {
             StringBuilder order = new StringBuilder();
             order.append(" order by ");
-            orders.stream().forEach(s->{
+            for (IOrder s : orders) {
                 order.append(s.getOrderString(f2c)).append(",");
-            });
+            }
             order.delete(order.length()-1, order.length());
             return order.toString();
         }

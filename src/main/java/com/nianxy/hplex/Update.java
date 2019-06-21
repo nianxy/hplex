@@ -211,11 +211,15 @@ public class Update {
     private PreparedStatement setupPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
-        sql.append("update ").append(tableInfo.getTableName())
-                .append(" set ").append(getColumnStatement())
-                .append(Cond.getWhereClause(conds, tableInfo))
-                .append(Order.getOrderClause(orders, tableInfo))
-                .append(Limit.getLimitClause(limit));
+        try {
+            sql.append("update ").append(tableInfo.getTableName())
+                    .append(" set ").append(getColumnStatement())
+                    .append(Cond.getWhereClause(conds, tableInfo))
+                    .append(Order.getOrderClause(orders, tableInfo))
+                    .append(Limit.getLimitClause(limit));
+        } catch (FieldNotFoundException e) {
+            throw new ExecutionFailedException(e);
+        }
 
         logger.trace(sql);
         PreparedStatement pstmt = null;

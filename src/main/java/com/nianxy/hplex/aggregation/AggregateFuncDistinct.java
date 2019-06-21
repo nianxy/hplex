@@ -1,6 +1,7 @@
 package com.nianxy.hplex.aggregation;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class AggregateFuncDistinct implements IAggregate {
     }
 
     @Override
-    public String getSQLStatement(FieldInfo fi) {
+    public String getSQLStatement(FieldInfo fi) throws FieldNotFoundException {
         if (fields.size()==0)
             throw new RuntimeException("no field defined in AggregateFuncDistinct object");
         StringBuilder sb = new StringBuilder();

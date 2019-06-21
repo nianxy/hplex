@@ -1,6 +1,7 @@
 package com.nianxy.hplex;
 
 import com.nianxy.hplex.assign.ValueAssigner;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,12 +45,20 @@ class TableInfo implements FieldInfo {
     }
 
     @Override
-    public String getColumnByField(String field) {
-        return columnsByMember.get(field).getColumnName();
+    public String getColumnByField(String field) throws FieldNotFoundException {
+        ColumnInfo column = columnsByMember.get(field);
+        if (column==null) {
+            throw new FieldNotFoundException(field);
+        }
+        return column.getColumnName();
     }
 
     @Override
-    public ValueAssigner getAssignerByField(String field) {
-        return columnsByMember.get(field).getAssigner();
+    public ValueAssigner getAssignerByField(String field) throws FieldNotFoundException {
+        ColumnInfo column = columnsByMember.get(field);
+        if (column==null) {
+            throw new FieldNotFoundException(field);
+        }
+        return column.getAssigner();
     }
 }

@@ -1,6 +1,7 @@
 package com.nianxy.hplex.aggregation;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +27,10 @@ public class AggregateGroup implements IAggregate {
     }
 
     @Override
-    public String getSQLStatement(FieldInfo fi) {
-        if (fields.size()==0)
+    public String getSQLStatement(FieldInfo fi) throws FieldNotFoundException {
+        if (fields.size()==0) {
             throw new RuntimeException("no field defined in AggregateGroup object");
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(" group by ");
         for (String f:fields) {

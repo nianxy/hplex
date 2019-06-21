@@ -4,6 +4,7 @@ import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.ICond;
 import com.nianxy.hplex.exception.AssignToStatementException;
 import com.nianxy.hplex.exception.ExecutionFailedException;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 import com.nianxy.hplex.exception.NoConnectionException;
 import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
@@ -98,10 +99,14 @@ public class Delete {
     private PreparedStatement setupPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
-        sql.append("delete from ").append(tableInfo.getTableName())
-                .append(Cond.getWhereClause(conds, tableInfo))
-                .append(Order.getOrderClause(orders, tableInfo))
-                .append(Limit.getLimitClause(limit));
+        try {
+            sql.append("delete from ").append(tableInfo.getTableName())
+                    .append(Cond.getWhereClause(conds, tableInfo))
+                    .append(Order.getOrderClause(orders, tableInfo))
+                    .append(Limit.getLimitClause(limit));
+        } catch (FieldNotFoundException e) {
+            throw new ExecutionFailedException(e);
+        }
 
         logger.trace(sql);
         PreparedStatement pstmt = null;

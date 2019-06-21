@@ -2,10 +2,7 @@ package com.nianxy.hplex;
 
 import com.nianxy.hplex.cond.Cond;
 import com.nianxy.hplex.cond.ICond;
-import com.nianxy.hplex.exception.AssignToFieldException;
-import com.nianxy.hplex.exception.CreateTableInstanceFailedException;
-import com.nianxy.hplex.exception.ExecutionFailedException;
-import com.nianxy.hplex.exception.NoConnectionException;
+import com.nianxy.hplex.exception.*;
 import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
@@ -244,12 +241,13 @@ public class Query {
     private PreparedStatement setupCountPrepareStatement(Connection conn) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
-        sql.append("select count(*) from ").append(tableInfo.getTableName())
-                .append(Cond.getWhereClause(conds, tableInfo));
 
-        logger.trace(sql);
         PreparedStatement pstmt = null;
         try {
+            sql.append("select count(*) from ").append(tableInfo.getTableName())
+                    .append(Cond.getWhereClause(conds, tableInfo));
+
+            logger.trace(sql);
             pstmt = conn.prepareStatement(sql.toString());
             // 设置参数
             Cond.setWherePrepareStatement(conds, pstmt, 1, tableInfo);
@@ -263,19 +261,23 @@ public class Query {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
 
-        sql.append("select ");
-        if (aggregateFuncs==null) {
-            sql.append(getColumnNames());
-        } else {
-            sql.append(Aggregate.getAggregateFuncString(aggregateFuncs, tableInfo));
+        try {
+            sql.append("select ");
+            if (aggregateFuncs == null) {
+                sql.append(getColumnNames());
+            } else {
+                sql.append(Aggregate.getAggregateFuncString(aggregateFuncs, tableInfo));
+            }
+            sql.append(" from ").append(tableInfo.getTableName())
+                    .append(Cond.getWhereClause(conds, tableInfo))
+                    .append(Order.getOrderClause(orders, tableInfo));
+            if (aggregateGroup != null) {
+                sql.append(aggregateGroup.getSQLStatement(tableInfo));
+            }
+            sql.append(Limit.getLimitClause(limit));
+        } catch (FieldNotFoundException e) {
+            throw new ExecutionFailedException(e);
         }
-        sql.append(" from ").append(tableInfo.getTableName())
-                .append(Cond.getWhereClause(conds, tableInfo))
-                .append(Order.getOrderClause(orders, tableInfo));
-        if (aggregateGroup!=null) {
-            sql.append(aggregateGroup.getSQLStatement(tableInfo));
-        }
-        sql.append(Limit.getLimitClause(limit));
 
         logger.trace(sql);
         PreparedStatement pstmt = null;

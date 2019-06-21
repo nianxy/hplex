@@ -1,6 +1,7 @@
 package com.nianxy.hplex.order;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 /**
  * Created by nianxingyan on 17/8/17.
@@ -13,7 +14,7 @@ public class OrderASC implements IOrder {
     }
 
     @Override
-    public String getOrderString(FieldInfo f2c) {
+    public String getOrderString(FieldInfo f2c) throws FieldNotFoundException {
         return "`" + f2c.getColumnByField(field) + "` asc";
     }
 }

@@ -2,6 +2,7 @@ package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
 import com.nianxy.hplex.exception.AssignToStatementException;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -75,13 +76,13 @@ public class Cond {
         return new CondCustom();
     }
 
-    public static String getWhereClause(Collection<ICond> conds, FieldInfo fi) {
+    public static String getWhereClause(Collection<ICond> conds, FieldInfo fi) throws FieldNotFoundException {
         if (conds!=null && conds.size()>0) {
             StringBuilder where = new StringBuilder();
             where.append(" where ");
-            conds.stream().forEach(s->{
+            for (ICond s : conds) {
                 where.append(s.getWhereClouse(fi)).append(" and ");
-            });
+            }
             where.delete(where.length()-5, where.length());
             return where.toString();
         }
@@ -89,7 +90,7 @@ public class Cond {
     }
 
     public static int setWherePrepareStatement(Collection<ICond> conds, PreparedStatement pstmt,
-                                               int paramIndex, FieldInfo fi) throws AssignToStatementException {
+                                               int paramIndex, FieldInfo fi) throws AssignToStatementException, FieldNotFoundException {
         for (ICond cond:conds) {
             paramIndex = cond.setPrepareStatement(fi, pstmt, paramIndex);
         }

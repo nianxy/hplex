@@ -1,6 +1,7 @@
 package com.nianxy.hplex.aggregation;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.util.List;
 
@@ -28,12 +29,12 @@ public class Aggregate {
         return new AggregateGroup();
     }
 
-    public static String getAggregateFuncString(List<IAggregate> funcs, FieldInfo fi) {
+    public static String getAggregateFuncString(List<IAggregate> funcs, FieldInfo fi) throws FieldNotFoundException {
         if (funcs!=null && funcs.size()>0) {
             StringBuilder sql = new StringBuilder();
-            funcs.stream().forEach(f->{
+            for (IAggregate f : funcs) {
                 sql.append(f.getSQLStatement(fi)).append(",");
-            });
+            }
             sql.deleteCharAt(sql.length()-1);
             return sql.toString();
         }

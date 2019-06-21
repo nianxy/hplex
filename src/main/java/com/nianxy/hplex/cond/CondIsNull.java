@@ -1,6 +1,7 @@
 package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public class CondIsNull implements ICond {
     }
 
     @Override
-    public String getWhereClouse(FieldInfo fi) {
+    public String getWhereClouse(FieldInfo fi) throws FieldNotFoundException {
         return fi.getColumnByField(field)+" is null";
     }
 

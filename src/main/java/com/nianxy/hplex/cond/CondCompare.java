@@ -2,6 +2,7 @@ package com.nianxy.hplex.cond;
 
 import com.nianxy.hplex.FieldInfo;
 import com.nianxy.hplex.exception.AssignToStatementException;
+import com.nianxy.hplex.exception.FieldNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -37,12 +38,12 @@ public class CondCompare implements ICond {
     }
 
     @Override
-    public String getWhereClouse(FieldInfo fi) {
+    public String getWhereClouse(FieldInfo fi) throws FieldNotFoundException {
         return fi.getColumnByField(field)+getCompareSymbol()+"?";
     }
 
     @Override
-    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException {
+    public int setPrepareStatement(FieldInfo fi, PreparedStatement pstmt, int paramIndex) throws AssignToStatementException, FieldNotFoundException {
         fi.getAssignerByField(field).assign(pstmt, paramIndex++, value);
         return paramIndex;
     }
