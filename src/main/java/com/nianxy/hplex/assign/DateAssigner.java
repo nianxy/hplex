@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -21,13 +22,7 @@ public class DateAssigner implements ValueAssigner {
     @Override
     public void assign(Object obj, Field field, ResultSet rs, String label) throws AssignToFieldException {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(DateFormatString);
-            String t = rs.getString(label);
-            if (t!=null) {
-                field.set(obj, sdf.parse(t));
-            } else {
-                field.set(obj, null);
-            }
+            field.set(obj, rs.getObject(label));
         } catch (Throwable e) {
             throw new AssignToFieldException(field, e);
         }
@@ -39,8 +34,7 @@ public class DateAssigner implements ValueAssigner {
             if (value==null) {
                 pstmt.setNull(idx, Types.DATE);
             } else {
-                SimpleDateFormat sdf = new SimpleDateFormat(DateFormatString);
-                pstmt.setString(idx, sdf.format((Date) value));
+                pstmt.setDate(idx, new java.sql.Date(((Date)value).getTime()));
             }
         } catch (Throwable e) {
             throw new AssignToStatementException(e);
