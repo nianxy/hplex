@@ -22,7 +22,7 @@ public class DateAssigner implements ValueAssigner {
     @Override
     public void assign(Object obj, Field field, ResultSet rs, String label) throws AssignToFieldException {
         try {
-            field.set(obj, rs.getObject(label));
+            field.set(obj, rs.getDate(label));
         } catch (Throwable e) {
             throw new AssignToFieldException(field, e);
         }
