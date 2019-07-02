@@ -44,14 +44,9 @@ public class HPlexConfigure {
         } else if (Date.class.isAssignableFrom(fieldClass)) {
             return new DateAssigner();
         } else if (IJSONColumn.class.isAssignableFrom(fieldClass)) {
-            try {
-                JSONAssigner assigner =  new JSONAssigner();
-                assigner.setObjectType(fieldClass);
-                return assigner;
-            } catch (NoJSONConvertException e) {
-                logger.error("no json convert set for IJSONColumn column!");
-                return null;
-            }
+            JSONAssigner assigner =  new JSONAssigner();
+            assigner.setObjectType(fieldClass);
+            return assigner;
         }
         return null;
     }

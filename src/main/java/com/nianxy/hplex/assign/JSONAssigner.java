@@ -16,14 +16,9 @@ import java.sql.Types;
  * Created by nianxingyan on 17/8/16.
  */
 public class JSONAssigner implements ValueAssigner {
-    private IJSONConvert jsonConvert;
     private Class objectType;
 
-    public JSONAssigner() throws NoJSONConvertException {
-        if (HPlex.getConfigure().getJsonConvert()==null) {
-            throw new NoJSONConvertException();
-        }
-        this.jsonConvert = HPlex.getConfigure().getJsonConvert();
+    public JSONAssigner() {
     }
 
     public void setObjectType(Class objectType) {
@@ -40,9 +35,13 @@ public class JSONAssigner implements ValueAssigner {
      */
     @Override
     public void assign(Object obj, Field field, ResultSet rs, String label) throws AssignToFieldException {
+        IJSONConvert jsonConvert = HPlex.getConfigure().getJsonConvert();
+        if (jsonConvert==null) {
+            throw new AssignToFieldException(field, new NoJSONConvertException());
+        }
         try {
-            Object v = rs.getObject(label);
-            field.set(obj, v==null?null:jsonConvert.toObject(rs.getString(label), objectType));
+            String v = rs.getString(label);
+            field.set(obj, v==null||v.isEmpty()?null:jsonConvert.toObject(v, objectType));
         } catch (Throwable e) {
             throw new AssignToFieldException(field, e);
         }
@@ -50,6 +49,10 @@ public class JSONAssigner implements ValueAssigner {
 
     @Override
     public void assign(PreparedStatement pstmt, int idx, Object value) throws AssignToStatementException {
+        IJSONConvert jsonConvert = HPlex.getConfigure().getJsonConvert();
+        if (jsonConvert==null) {
+            throw new AssignToStatementException(new NoJSONConvertException());
+        }
         try {
             if (value==null) {
                 pstmt.setNull(idx, Types.CHAR);
