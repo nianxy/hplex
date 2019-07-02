@@ -16,6 +16,7 @@ public class HPlexTransaction {
     private Connection connection;
     private boolean started;
     private boolean finished;
+    private boolean inTransaction;
     private boolean oriAutoCommit;
 
     public HPlexTransaction() {
@@ -34,6 +35,7 @@ public class HPlexTransaction {
             conn.setAutoCommit(false);
         }
         started = true;
+        inTransaction = true;
     }
 
     /**
@@ -58,6 +60,7 @@ public class HPlexTransaction {
             connection.setAutoCommit(oriAutoCommit);
         }
         finished = true;
+        inTransaction = false;
     }
 
     public void rollback() throws TransactionNotStartedException, SQLException {
@@ -70,6 +73,7 @@ public class HPlexTransaction {
             connection.setAutoCommit(oriAutoCommit);
         }
         finished = true;
+        inTransaction = false;
     }
 
     public boolean isStarted() {
@@ -78,5 +82,9 @@ public class HPlexTransaction {
 
     public boolean isFinished() {
         return finished;
+    }
+
+    public boolean isInTransaction() {
+        return inTransaction;
     }
 }

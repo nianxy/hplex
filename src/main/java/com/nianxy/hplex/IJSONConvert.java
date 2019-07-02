@@ -10,7 +10,7 @@ public interface IJSONConvert {
      * @param <T>
      * @return
      */
-    <T>T toObject(String jsonString, Class<T> clz) throws JSONConvertException;
+    <T extends IJSONColumn>T toObject(String jsonString, Class<T> clz) throws JSONConvertException;
 
     /**
      * 将对象转换为JSON串，必须是线程安全的
@@ -18,5 +18,5 @@ public interface IJSONConvert {
      * @param clz
      * @return
      */
-    String toJSONString(Object object, Class clz) throws JSONConvertException;
+    <T extends IJSONColumn>String toJSONString(Object object, Class<T> clz) throws JSONConvertException;
 }
