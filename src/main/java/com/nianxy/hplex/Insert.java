@@ -142,6 +142,7 @@ public class Insert {
         try {
             conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection(), Statement.NO_GENERATED_KEYS);
+            HPlex.reportSQL(pstmt);
             int count = pstmt.executeUpdate();
             return count;
         } catch (ExecutionFailedException e) {
@@ -168,6 +169,7 @@ public class Insert {
         try {
             conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection(), Statement.RETURN_GENERATED_KEYS);
+            HPlex.reportSQL(pstmt);
             int count = pstmt.executeUpdate();
             long id = 0;
             if (count>0) {

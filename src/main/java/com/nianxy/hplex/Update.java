@@ -145,6 +145,7 @@ public class Update {
         try {
             conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
+            HPlex.reportSQL(pstmt);
             int count = pstmt.executeUpdate();
             return count;
         } catch (Throwable e) {

@@ -199,6 +199,7 @@ public class Query {
         try {
             conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
+            HPlex.reportSQL(pstmt);
             ResultSet rs = pstmt.executeQuery();
             if (aggregateFuncs==null) {
                 while (rs.next()) {

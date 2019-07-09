@@ -24,6 +24,7 @@ public class HPlexConfigure {
     private Map<String, TableInfo> classColumns = new HashMap<>();
     private SimpleDataSoruce ds;
     private IJSONConvert jsonConvert;
+    private IReceiveSQL receiveSQL;
 
     private static ValueAssigner getAssigner(Field field) {
         Class fieldClass = field.getType();
@@ -118,5 +119,13 @@ public class HPlexConfigure {
     public HPlexConfigure setDataSource(SimpleDataSoruce ds) {
         this.ds = ds;
         return this;
+    }
+
+    public IReceiveSQL getReceiveSQL() {
+        return receiveSQL;
+    }
+
+    public void setReceiveSQL(IReceiveSQL receiveSQL) {
+        this.receiveSQL = receiveSQL;
     }
 }

@@ -83,6 +83,7 @@ public class Delete {
         try {
             conn = new HPConnection(connection);
             PreparedStatement pstmt = setupPrepareStatement(conn.getConnection());
+            HPlex.reportSQL(pstmt);
             n = pstmt.executeUpdate();
         } catch (ExecutionFailedException e) {
             throw e;
