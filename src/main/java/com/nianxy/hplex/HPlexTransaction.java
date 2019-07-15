@@ -1,6 +1,7 @@
 package com.nianxy.hplex;
 
 
+import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
 import com.nianxy.hplex.exception.NoConnectionException;
 import com.nianxy.hplex.exception.TableNotFoundException;
 import com.nianxy.hplex.exception.TransactionNotStartedException;
@@ -10,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class HPlexTransaction {
+public class HPlexTransaction implements AutoCloseable {
     private static final Logger logger = LogManager.getLogger(HPlexTransaction.class);
 
     private Connection connection;
@@ -86,5 +87,17 @@ public class HPlexTransaction {
 
     public boolean isInTransaction() {
         return inTransaction;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (started && !isFinished()) {
+            logger.warn("HPlex transaction will auto rollback");
+            try {
+                this.rollback();
+            } catch (SQLException e) {
+                logger.error("HPlex transaction auto rollback exception:" + ExceptionUtils.getTraceInfo(e));
+            }
+        }
     }
 }

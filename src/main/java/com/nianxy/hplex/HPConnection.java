@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-class HPConnection {
+class HPConnection implements AutoCloseable {
     private static Logger logger = LogManager.getLogger(HPConnection.class);
 
     private Connection connection;
@@ -26,6 +26,7 @@ class HPConnection {
         this.connection = connection;
     }
 
+    @Override
     public void close() {
         if (realClose) {
             try {
