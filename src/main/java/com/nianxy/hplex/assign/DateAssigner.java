@@ -11,7 +11,9 @@ import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by nianxingyan on 17/8/16.
@@ -34,7 +36,8 @@ public class DateAssigner implements ValueAssigner {
             if (value==null) {
                 pstmt.setNull(idx, Types.DATE);
             } else {
-                pstmt.setDate(idx, new java.sql.Date(((Date)value).getTime()));
+                pstmt.setDate(idx, new java.sql.Date(((Date)value).getTime()),
+                        Calendar.getInstance(TimeZone.getDefault()));
             }
         } catch (Throwable e) {
             throw new AssignToStatementException(e);
