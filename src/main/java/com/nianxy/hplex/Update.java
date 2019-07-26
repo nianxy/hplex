@@ -222,7 +222,7 @@ public class Update {
             throw new ExecutionFailedException(e);
         }
 
-        logger.trace(sql);
+        //logger.trace(sql);
         PreparedStatement pstmt = null;
         try {
             pstmt = conn.prepareStatement(sql.toString());

@@ -1,10 +1,8 @@
 package com.nianxy.hplex;
 
-import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
 import com.nianxy.hplex.exception.AssignToStatementException;
 import com.nianxy.hplex.exception.ExecutionFailedException;
 import com.nianxy.hplex.exception.FieldNotFoundException;
-import com.nianxy.hplex.exception.NoConnectionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,6 +27,7 @@ public class Insert {
     private List<ColumnInfo> columns;
     private List<ColumnInfo> update;
     private List<String> customUpdate;
+    private boolean withReplace;
 
     private boolean isSetAutoInc;
     private ColumnInfo autoIncField;
@@ -37,8 +36,17 @@ public class Insert {
         this.table = table;
         connection = conn;
         tableInfo = table.getTableInfo();
+        withReplace = false;
         isSetAutoInc = false;
         data = new ArrayList<>();
+    }
+
+    /**
+     * 插入时使用replace into
+     */
+    public Insert setWithReplace() {
+        this.withReplace = true;
+        return this;
     }
 
     /**
@@ -297,12 +305,17 @@ public class Insert {
     private PreparedStatement setupPrepareStatement(Connection conn, int autoinc) throws ExecutionFailedException {
         // 先拼SQL
         StringBuilder sql = new StringBuilder();
-        sql.append("insert into ").append(tableInfo.getTableName())
+        if (withReplace) {
+            sql.append("replace into ");
+        } else {
+            sql.append("insert into ");
+        }
+        sql.append(tableInfo.getTableName())
                 .append(" (").append(getColumnNames()).append(")values")
                 .append(getValuesStr())
                 .append(getUpdateStr());
 
-        logger.trace(sql);
+        //logger.trace(sql);
 
         // 设置参数
         PreparedStatement pstmt;
