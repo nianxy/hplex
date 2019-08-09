@@ -9,6 +9,10 @@ import java.util.List;
 public class CondList {
     private static Logger logger = LogManager.getLogger(CondList.class);
 
+    public static CondList from(ICond cond) {
+        return new CondList().addCond(cond);
+    }
+
     private List<ICond> conds;
 
     public CondList() {

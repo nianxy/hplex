@@ -9,6 +9,10 @@ import java.util.List;
 public class OrderList {
     private static Logger logger = LogManager.getLogger(OrderList.class);
 
+    public static OrderList from(IOrder order) {
+        return new OrderList().addOrder(order);
+    }
+
     private List<IOrder> orders;
 
     public OrderList() {
