@@ -73,7 +73,7 @@ public class Update {
      */
     public Update addCondList(CondList conds) {
         for (ICond cond:conds.getConds()) {
-            this.conds.add(cond);
+            addCond(cond);
         }
         return this;
     }

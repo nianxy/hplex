@@ -71,7 +71,7 @@ public class Delete {
      */
     public Delete addCondList(CondList conds) {
         for (ICond cond:conds.getConds()) {
-            this.conds.add(cond);
+            addCond(cond);
         }
         return this;
     }
@@ -83,7 +83,7 @@ public class Delete {
      */
     public Delete addOrderList(OrderList orders) {
         for (IOrder order:orders.getOrders()) {
-            this.orders.add(order);
+            addOrder(order);
         }
         return this;
     }

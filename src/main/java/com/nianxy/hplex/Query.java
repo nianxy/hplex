@@ -116,7 +116,7 @@ public class Query {
      */
     public Query addCondList(CondList conds) {
         for (ICond cond:conds.getConds()) {
-            this.conds.add(cond);
+            addCond(cond);
         }
         return this;
     }
@@ -128,7 +128,7 @@ public class Query {
      */
     public Query addOrderList(OrderList orders) {
         for (IOrder order:orders.getOrders()) {
-            this.orders.add(order);
+            addOrder(order);
         }
         return this;
     }
