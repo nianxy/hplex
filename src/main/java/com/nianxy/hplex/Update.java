@@ -2,6 +2,7 @@ package com.nianxy.hplex;
 
 import app.nianxy.commonlib.exceptionutils.ExceptionUtils;
 import com.nianxy.hplex.cond.Cond;
+import com.nianxy.hplex.cond.CondList;
 import com.nianxy.hplex.cond.ICond;
 import com.nianxy.hplex.exception.AssignToStatementException;
 import com.nianxy.hplex.exception.ExecutionFailedException;
@@ -10,6 +11,7 @@ import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
 import com.nianxy.hplex.order.Order;
+import com.nianxy.hplex.order.OrderList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,6 +63,18 @@ public class Update {
      */
     public Update addCond(ICond cond) {
         this.conds.add(cond);
+        return this;
+    }
+
+    /**
+     * 增加条件列表。
+     * @param conds
+     * @return
+     */
+    public Update addCondList(CondList conds) {
+        for (ICond cond:conds.getConds()) {
+            this.conds.add(cond);
+        }
         return this;
     }
 

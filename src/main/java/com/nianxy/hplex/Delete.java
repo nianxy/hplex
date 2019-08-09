@@ -1,6 +1,7 @@
 package com.nianxy.hplex;
 
 import com.nianxy.hplex.cond.Cond;
+import com.nianxy.hplex.cond.CondList;
 import com.nianxy.hplex.cond.ICond;
 import com.nianxy.hplex.exception.AssignToStatementException;
 import com.nianxy.hplex.exception.ExecutionFailedException;
@@ -10,6 +11,7 @@ import com.nianxy.hplex.limit.ILimit;
 import com.nianxy.hplex.limit.Limit;
 import com.nianxy.hplex.order.IOrder;
 import com.nianxy.hplex.order.Order;
+import com.nianxy.hplex.order.OrderList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,6 +61,30 @@ public class Delete {
             orders = new ArrayList<>();
         }
         orders.add(order);
+        return this;
+    }
+
+    /**
+     * 增加条件列表。
+     * @param conds
+     * @return
+     */
+    public Delete addCondList(CondList conds) {
+        for (ICond cond:conds.getConds()) {
+            this.conds.add(cond);
+        }
+        return this;
+    }
+
+    /**
+     * 设置排序规则列表
+     * @param orders
+     * @return
+     */
+    public Delete addOrderList(OrderList orders) {
+        for (IOrder order:orders.getOrders()) {
+            this.orders.add(order);
+        }
         return this;
     }
 
