@@ -68,7 +68,7 @@ public abstract class BaseDao<T> {
         return total(null);
     }
 
-    public T get(String id) {
+    public T get(Object id) {
         try {
             return (T)createHPlexTable().query()
                     .addCond(Cond.compare(CondCompare.Compare.EQ, getKeyAttrName(), id))
@@ -145,12 +145,12 @@ public abstract class BaseDao<T> {
         return update(data, conds, new String[]{field});
     }
 
-    public int update(T data, String id, String field) {
+    public int update(T data, Object id, String field) {
         return update(data, new CondList().addCond(Cond.compare(CondCompare.Compare.EQ, getKeyAttrName(), id)),
                 new String[]{field});
     }
 
-    public int update(T data, String id, String[] fields) {
+    public int update(T data, Object id, String[] fields) {
         return update(data, new CondList().addCond(Cond.compare(CondCompare.Compare.EQ, getKeyAttrName(), id)),
                 fields);
     }
