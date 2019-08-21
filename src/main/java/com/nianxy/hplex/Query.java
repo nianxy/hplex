@@ -76,7 +76,7 @@ public class Query {
         if (columns!=null) {
             StringBuffer sb = new StringBuffer();
             columns.stream().forEach(f->{
-                sb.append(f.getColumnName()).append(",");
+                sb.append('`').append(f.getColumnName()).append("`,");
             });
             sb.deleteCharAt(sb.length()-1);
             return sb.toString();

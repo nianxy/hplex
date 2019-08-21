@@ -194,7 +194,7 @@ public class Update {
                 tableInfo.getColumnsByName().values().stream());
         cols.forEach(c->{
             if (!c.isAutoIncrement()||this.isSetAutoInc) {
-                sb.append(c.getColumnName()).append("=?,");
+                sb.append('`').append(c.getColumnName()).append("`=?,");
             }
         });
         if (sb.length()>0) {
