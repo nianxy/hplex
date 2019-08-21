@@ -104,6 +104,9 @@ public class Delete {
      * @throws Exception
      */
     public int execute() throws ExecutionFailedException {
+        if (conds.size()==0 && limit==null) {
+            throw new ExecutionFailedException(new Exception("can't delete data without cond and limit!"));
+        }
         int n = 0;
         HPConnection conn = null;
         try {
