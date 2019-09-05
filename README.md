@@ -183,3 +183,24 @@ try {
 }
 ```
 
+##BaseDao类
+此类实现了基础的数据表操作方法，业务Dao类建议直接继承此类
+```java
+public class CertificateDao extends BaseDao<CertificateTable> {
+    public CertificateDao() {
+    }
+
+    public CertificateDao(HPlexTransaction transaction) {
+        super(transaction);
+    }
+
+    @Override
+    protected String getKeyAttrName() {
+        return "sid";
+    }
+}
+```
+
+这是一个抽象基类，必须实现getKeyAttrName()方法，该方法返回一个字段名，该字段应该是表中的UNIQ字段，比如是业务中使用的记录ID。
+
+另外，建议重载两个构造函数，以便传入事务对象

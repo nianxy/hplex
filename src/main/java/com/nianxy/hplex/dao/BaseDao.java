@@ -190,4 +190,15 @@ public abstract class BaseDao<T> {
             return -1;
         }
     }
+
+    public int delete(Object id) {
+        try {
+            return createHPlexTable().delete()
+                    .addCond(Cond.compare(CondCompare.Compare.EQ, getKeyAttrName(), id))
+                    .execute();
+        } catch (Exception e) {
+            logger.error("delete exception:" + ExceptionUtils.getTraceInfo(e));
+            return -1;
+        }
+    }
 }
