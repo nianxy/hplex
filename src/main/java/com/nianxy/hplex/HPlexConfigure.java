@@ -11,9 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by nianxingyan on 17/8/16.
@@ -52,6 +50,18 @@ public class HPlexConfigure {
         return null;
     }
 
+    private static List<Field> getClassFields(Class<?> c) {
+        List<Field> fields = new LinkedList<>();
+        Class superc = c.getSuperclass();
+        if (superc!=null) {
+            fields.addAll(getClassFields(superc));
+        }
+        for (Field f:c.getDeclaredFields()) {
+            fields.add(f);
+        }
+        return fields;
+    }
+
     public HPlexConfigure setJSONConvert(IJSONConvert convert) {
         this.jsonConvert = convert;
         return this;
@@ -70,7 +80,7 @@ public class HPlexConfigure {
         tableInfo.setTableClass(c);
         tableInfo.setTableName(c.getAnnotation(Table.class).value());
 
-        Field fields[] = c.getDeclaredFields();
+        List<Field> fields = getClassFields(c);
         for (Field f:fields) {
             if (f.isAnnotationPresent(Column.class)) {
                 ColumnInfo columnInfo = new ColumnInfo();
